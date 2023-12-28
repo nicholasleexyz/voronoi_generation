@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Image</title>
+    <!-- <link rel="stylesheet" href="/stylesheets/style.css"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/style.css') }}" />
+</head>
+
+<body class="background">
+    <!-- <img id="picture" src="data:image/jpeg;base64,{{ img_data }}"> -->
+    <!-- <div class="checkerboard"> -->
+    <div class="checkerboard-wrapper">
+        <img class="checkerboard" src="data:image/png;base64,{{ img_data }}">
+    </div>
+    <!-- </div> -->
+</body>
+
+</html>
