@@ -33,6 +33,34 @@
     background-color: darkslategrey;
 }
 
+.content {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    overflow: auto;
+}
+
+.settings::-webkit-scrollbar {
+    display: none;
+}
+
+.settings {
+    display: grid;
+    grid-template-columns: 1fr;
+    background-color: green;
+    overflow-y: scroll;
+
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    /* height: 100vh; */
+}
+
+.settings>* {
+    margin-block: 0.5rem;
+    margin-inline: 1rem;
+}
+
 /* .background>* {
     border: 0.25rem solid green;
 } */
