@@ -35,26 +35,57 @@
 
 .content {
     display: grid;
-    grid-template-columns: 1fr auto;
-    overflow: auto;
+
+    grid-template-columns: 1fr;
+    /* overflow: auto; */
+    /* background-color: pink; */
+}
+
+.settings {
+    display: grid;
+    width: 100%;
+
+    grid-template-columns: 1fr;
+    background-color: slategrey;
+
+    /* overflow-y: scroll; */
+
+    /* -ms-overflow-style: none; */
+    /* IE and Edge */
+    /* scrollbar-width: none; */
+    /* Firefox */
+    /* height: 100vh; */
+}
+
+@media (min-width: 992px) {
+    .content {
+        display: grid;
+        /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
+
+        grid-template-columns: 1fr auto;
+        overflow: auto;
+        /* background-color: pink; */
+    }
+
+    .settings {
+        /* display: grid; */
+        width: 400px;
+        /* grid-template-columns: 1fr; */
+        /* background-color: slategrey; */
+        overflow-y: scroll;
+
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+        /* height: 100vh; */
+    }
 }
 
 .settings::-webkit-scrollbar {
     display: none;
 }
 
-.settings {
-    display: grid;
-    grid-template-columns: 1fr;
-    background-color: green;
-    overflow-y: scroll;
-
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
-    /* height: 100vh; */
-}
 
 .settings>* {
     margin-block: 0.5rem;
