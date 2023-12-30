@@ -62,39 +62,45 @@
         <div class="checkerboard-wrapper">
             <img class="checkerboard" src="data:image/png;base64,{{ img_data }}">
 
-            <div class="">
+            <!-- <div class="">
                 <button type="button" class="btn btn-primary btn-lg">Large button</button>
                 <button type="button" class="btn btn-secondary btn-lg">Large button</button>
-            </div>
+            </div> -->
         </div>
         <div class="settings">
+            <!-- <form method='get' action='index.php?do=search'>
+  <input name='_search' type='text' value='What are you looking for?'>
+  <button type='submit'> Search </button>
+</form> -->
 
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
+            <form action="/gen/" method="get">
+                <!-- <input class="btn-lg btn-primary" type="submit" value="width" /> -->
+                <span>Rows: </span>
+                <input name="rows" type="number" value={{rows}} />
 
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
+                <span>Columns: </span>
+                <input name="columns" type="number" value={{columns}} />
 
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
-            <button type="button" class="btn btn-primary btn-lg">Large button</button>
-            <button type="button" class="btn btn-secondary btn-lg">Large button</button>
+                {% if debug %}
+                <input type="checkbox" name="debug" id="debug_mode" checked />
+                {% else %}
+                <div class="">
+                    <input type="checkbox" name="debug" id="debug_mode" />
+                </div>
+                {% endif %}
+                <label for="debug_mode">[Debug Mode]</label>
+
+                <br>
+
+                <input class="btn btn-lg btn-primary" type="submit" value="Generate">
+            </form>
+
+            <!-- <form method='get' action='index.php'>
+                <input name='_search' type='text' value='What are you looking for?' />
+                <submit name='do' value='Search'>
+            </form> -->
+
+
         </div>
     </div>
 

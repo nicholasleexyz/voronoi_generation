@@ -47,7 +47,6 @@
 
     grid-template-columns: 1fr;
     background-color: slategrey;
-
     /* overflow-y: scroll; */
 
     /* -ms-overflow-style: none; */
@@ -56,6 +55,26 @@
     /* Firefox */
     /* height: 100vh; */
 }
+
+.settings form {
+    /* border: solid red 0.5rem; */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* justify-items: stretch; */
+
+    justify-items: start;
+    margin-block: auto;
+    margin-inline: 2rem;
+    align-items: center;
+}
+
+.settings form>* {
+    /* height: 100%; */
+    /* border: solid green 0.5rem; */
+    margin-block: 0.25rem;
+    /* margin: auto; */
+}
+
 
 @media (min-width: 992px) {
     .content {

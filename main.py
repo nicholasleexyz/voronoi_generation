@@ -11,9 +11,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def test():
+    # return redirect(url_for("generate", rows=4, columns=4, debug=True))
     return redirect(url_for("generate", rows=4, columns=4, debug=True))
 
-@app.route('/gen/', methods=["GET"])
+@app.route('/gen/', methods=["POST","GET"])
 def generate():
 
     def get_surrounding_indexes(_index, _width, _length):
@@ -48,12 +49,16 @@ def generate():
         offset_y = height // rows // 2
         return coord + np.array([random.randrange(-offset_x, offset_x), random.randrange(-offset_y, offset_y)])
 
+
     rows = int(request.args.get('rows'))
     columns = int(request.args.get('columns'))
-    debug = request.args.get('debug') == 'True'
+    debug = request.args.get('debug') == 'on'
 
-    width = 512
-    height = 512
+    width = 256
+    height = 256
+    # width = 512
+    # height = 512
+
 
     def gen_grad_color(x, y):
         return (x*(width//columns),y*(height//rows),0)
@@ -120,7 +125,8 @@ def generate():
 
     #Then encode the saved image file.
     encoded_img_data = base64.b64encode(data.getvalue())
-    return render_template("index.html", img_data=encoded_img_data.decode('utf-8'))
+    print(f"Debug Mode: {debug}")
+    return render_template("index.html", img_data=encoded_img_data.decode('utf-8'), rows=rows, columns=columns, debug=debug)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
