@@ -56,9 +56,6 @@ def generate():
 
     width = 256
     height = 256
-    # width = 512
-    # height = 512
-
 
     def gen_grad_color(x, y):
         return (x*(width//columns),y*(height//rows),0)

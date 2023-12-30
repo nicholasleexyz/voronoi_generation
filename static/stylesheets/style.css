@@ -9,19 +9,15 @@
 
     width: 80%;
     aspect-ratio: 1/1;
-    /* background-color: red; */
 }
 
 .checkerboard-wrapper {
-    /* padding: 0; */
     padding: 1rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 100%;
-    /* height: 100dvh; */
-    /* background-color: blue; */
 }
 
 .background {
@@ -30,15 +26,20 @@
     grid-template-rows: auto 1fr;
     height: 100dvh;
     width: 100%;
-    background-color: darkslategrey;
+    background: #0f0c29;
+
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
 }
 
 .content {
     display: grid;
 
     grid-template-columns: 1fr;
-    /* overflow: auto; */
-    /* background-color: pink; */
 }
 
 .settings {
@@ -47,13 +48,12 @@
 
     grid-template-columns: 1fr;
     background-color: slategrey;
-    /* overflow-y: scroll; */
-
-    /* -ms-overflow-style: none; */
-    /* IE and Edge */
-    /* scrollbar-width: none; */
-    /* Firefox */
-    /* height: 100vh; */
+    background: #5C258D;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to top, #4389A2, #5C258D);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to top, #4389A2, #5C258D);
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 }
 
 .settings form {
@@ -69,35 +69,37 @@
 }
 
 .settings form>* {
-    /* height: 100%; */
-    /* border: solid green 0.5rem; */
     margin-block: 0.25rem;
-    /* margin: auto; */
 }
 
+.settings form>label {
+    color: white;
+}
+
+.settings form>label {
+    color: white;
+}
+
+img {
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+}
 
 @media (min-width: 992px) {
     .content {
         display: grid;
-        /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
-
         grid-template-columns: 1fr auto;
         overflow: auto;
-        /* background-color: pink; */
     }
 
     .settings {
-        /* display: grid; */
         width: 400px;
-        /* grid-template-columns: 1fr; */
-        /* background-color: slategrey; */
         overflow-y: scroll;
 
-        -ms-overflow-style: none;
         /* IE and Edge */
-        scrollbar-width: none;
+        -ms-overflow-style: none;
+
         /* Firefox */
-        /* height: 100vh; */
+        scrollbar-width: none;
     }
 }
 
@@ -105,12 +107,7 @@
     display: none;
 }
 
-
 .settings>* {
     margin-block: 0.5rem;
     margin-inline: 1rem;
 }
-
-/* .background>* {
-    border: 0.25rem solid green;
-} */
