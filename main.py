@@ -9,14 +9,26 @@ from functools import reduce
 
 app = Flask(__name__)
 
+# TODO:
+
+# seedable RNG
+# sharable link button
+
+# toggle for outline/grout
+# toggle for tillable option
+# display to show the texture being tiled
+# texture scale slider for tiling display
+
+# color pallette selection dropdown
+# buy me a coffee link/button
+
 @app.route('/')
 def test():
     # return redirect(url_for("generate", rows=4, columns=4, debug=True))
-    return redirect(url_for("generate", rows=4, columns=4, debug=True))
+    return redirect(url_for("generate", rows=4, columns=4, width=128, height=128, seed=1, debug=True))
 
 @app.route('/gen/', methods=["POST","GET"])
 def generate():
-
     def get_surrounding_indexes(_index, _width, _length):
         match (_index, _width, _length):
             case i, w, _ if i == 0: # top left
@@ -52,16 +64,22 @@ def generate():
 
     rows = int(request.args.get('rows'))
     columns = int(request.args.get('columns'))
+    seed = int(request.args.get('seed'))
     debug = request.args.get('debug') == 'on'
 
-    width = 256
-    height = 256
+    width = int(request.args.get('width'))
+    height = int(request.args.get('height'))
+
+    random.seed(seed)
+
+    # width = 256
+    # height = 256
 
     def gen_grad_color(x, y):
-        return (x*(width//columns),y*(height//rows),0)
+        return (x*(width//columns//2),0,y*(height//rows//2))
 
-    colors = [gen_rand_color() for y in range(rows) for x in range(columns)]
-    # colors = [gen_grad_color(x, y) for y in range(rows) for x in range(columns)]
+    # colors = [gen_rand_color() for y in range(rows) for x in range(columns)]
+    colors = [gen_grad_color(x, y) for y in range(rows) for x in range(columns)]
 
     centerCoordinates = []
 
@@ -122,8 +140,8 @@ def generate():
 
     #Then encode the saved image file.
     encoded_img_data = base64.b64encode(data.getvalue())
-    print(f"Debug Mode: {debug}")
-    return render_template("index.html", img_data=encoded_img_data.decode('utf-8'), rows=rows, columns=columns, debug=debug)
+    # print(f"Debug Mode: {debug}")
+    return render_template("index.html", img_data=encoded_img_data.decode('utf-8'), rows=rows, columns=columns, width=width, height=height, debug=debug, seed=str(seed))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
