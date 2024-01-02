@@ -144,4 +144,4 @@ def generate():
     return render_template("index.html", img_data=encoded_img_data.decode('utf-8'), rows=rows, columns=columns, width=width, height=height, debug=debug, seed=str(seed))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=False)
