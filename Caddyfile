@@ -1,0 +1,7 @@
+www.alpacaattic.com {
+    redir https://alpacaattic.com{uri}
+}
+
+alpacaattic.com {
+    reverse_proxy localhost:8000
+}
