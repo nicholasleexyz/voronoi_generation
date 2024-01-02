@@ -70,16 +70,31 @@ def generate():
     width = int(request.args.get('width'))
     height = int(request.args.get('height'))
 
-    random.seed(seed)
+    max_resolution = 512
+    if width > max_resolution:
+        width = max_resolution
+    if height > max_resolution:
+        height = max_resolution
 
-    # width = 256
-    # height = 256
+    if columns > width // 4:
+        columns = width // 4
+    if rows > height // 4:
+        rows = height // 4
+
+
+    width = (width // columns) * columns
+    height = (height // rows) * rows
+
+    # print(f'WIDTH: {width}')
+    # print(f'HEIGHT: {height}')
 
     def gen_grad_color(x, y):
         return (x*(width//columns//2),0,y*(height//rows//2))
 
-    # colors = [gen_rand_color() for y in range(rows) for x in range(columns)]
-    colors = [gen_grad_color(x, y) for y in range(rows) for x in range(columns)]
+    random.seed(seed)
+
+    colors = [gen_rand_color() for y in range(rows) for x in range(columns)]
+    # colors = [gen_grad_color(x, y) for y in range(rows) for x in range(columns)]
 
     centerCoordinates = []
 
@@ -102,8 +117,10 @@ def generate():
 
         pixelCoord = np.array([x, y])
         surrounding_indexes = get_surrounding_indexes(i, columns, rows*columns);
+        # print(f"{i}: {surrounding_indexes}")
+        # print("asdf")
 
-        shortestDist = sorted([(idx, np.linalg.norm(centerCoordinates[idx] - pixelCoord)) for idx in surrounding_indexes], key=lambda x: x[1], reverse=False)[0]
+        shortestDist = sorted([(idx, np.linalg.norm(centerCoordinates[idx] - pixelCoord)) for idx in surrounding_indexes], key=lambda x: x[1])[0]
 
         shortestDistIndex = shortestDist[0]
         shortestDistValue = shortestDist[1]
@@ -144,4 +161,4 @@ def generate():
     return render_template("index.html", img_data=encoded_img_data.decode('utf-8'), rows=rows, columns=columns, width=width, height=height, debug=debug, seed=str(seed))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False)
+    app.run(host='0.0.0.0', debug=True)
