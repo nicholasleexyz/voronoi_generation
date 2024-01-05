@@ -9,3 +9,4 @@ numpy==1.26.2
 packaging==23.2
 pillow==10.2.0
 Werkzeug==3.0.1
+SciPy==1.11.4
