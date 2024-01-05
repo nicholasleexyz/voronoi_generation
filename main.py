@@ -36,11 +36,16 @@ def generate():
     width = int(request.args.get('width'))
     height = int(request.args.get('height'))
 
-    max_resolution = 2048
+    min_resolution = 64
+    max_resolution = 1024
     if width > max_resolution:
         width = max_resolution
     if height > max_resolution:
         height = max_resolution
+    if width < min_resolution:
+        width = min_resolution
+    if height < min_resolution:
+        height = min_resolution
 
     np.random.seed(seed)
 
