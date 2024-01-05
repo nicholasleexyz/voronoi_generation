@@ -4,19 +4,18 @@
 }
 
 .checkerboard {
-    max-width: 512px;
-    min-width: 256px;
-
+    object-fit: cover;
     width: 80%;
-    aspect-ratio: 1/1;
+    max-width: 512px;
+    max-height: 512px;
 }
 
 .checkerboard-wrapper {
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 100%;
 }
 
@@ -38,7 +37,6 @@
 
 .content {
     display: grid;
-
     grid-template-columns: 1fr;
 }
 

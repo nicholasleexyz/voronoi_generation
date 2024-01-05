@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for
-from PIL import Image
 import base64
 import io
 import random
 import numpy as np
 import numpy.typing as npt
-from functools import reduce
+# from functools import reduce
+
+from PIL import Image, ImageDraw
+from concurrent.futures import ThreadPoolExecutor
 
 app = Flask(__name__)
 
@@ -24,141 +26,88 @@ app = Flask(__name__)
 
 @app.route('/')
 def test():
-    # return redirect(url_for("generate", rows=4, columns=4, debug=True))
-    return redirect(url_for("generate", rows=4, columns=4, width=128, height=128, seed=1, debug=True))
+    # return redirect(url_for("generate", rows=4, columns=4, width=128, height=128, seed=1, debug=True))
+    return redirect(url_for("generate", width=128, height=128, seed=1))
 
 @app.route('/gen/', methods=["POST","GET"])
 def generate():
-    def get_surrounding_indexes(_index, _width, _length):
-        match (_index, _width, _length):
-            case i, w, _ if i == 0: # top left
-                return [i, i + 1, w, w + 1]
-            case i, w, _ if i == w - 1: # top right
-                return [i, w - 2, w * 2 - 2, w * 2 - 1]
-            case i, w, l if i == l - w: # bottom left
-                return [i, l - w * 2, l - w * 2 + 1, l - w + 1]
-            case i, w, l if i == l - 1: # bottom right
-                return [i, l - w - 2, l - w - 1, l - 2]
-            case i, w, _ if i < w: # top edge
-                return [i, i - 1, i + 1, i + w - 1, i + w, i + w + 1]
-            case i, w, _ if i % w == 0: # left edge
-                return [i, i - w, i - w + 1, i + 1, i + w, i + w + 1]
-            case i, w, _ if (i + 1) % w == 0: # right edge
-                return [i, i - w - 1, i - w, i - 1, i + w - 1, i + w]
-            case i, w, l if i > (l - w - 1): # bottom edge
-                return [i, i - w - 1, i - w, i - w + 1, i - 1, i + 1]
-            case _:
-                return [i, i - w - 1, i - w, i - w + 1, i - 1, i + 1, i + w - 1, i + w, i + w + 1]
-
-    def gen_rand_color():
-        r = random.randrange(256)
-        g = random.randrange(256)
-        b = random.randrange(256)
-        return (r, g, b)
-
-    def rand_offset_coord(coord):
-        offset_x = width // columns // 2
-        offset_y = height // rows // 2
-        return coord + np.array([random.randrange(-offset_x, offset_x), random.randrange(-offset_y, offset_y)])
-
-
-    rows = int(request.args.get('rows'))
-    columns = int(request.args.get('columns'))
+    # rows = int(request.args.get('rows'))
+    # columns = int(request.args.get('columns'))
     seed = int(request.args.get('seed'))
-    debug = request.args.get('debug') == 'on'
+    # debug = request.args.get('debug') == 'on'
 
     width = int(request.args.get('width'))
     height = int(request.args.get('height'))
 
-    max_resolution = 512
+    max_resolution = 2048
     if width > max_resolution:
         width = max_resolution
     if height > max_resolution:
         height = max_resolution
 
-    if columns > width // 4:
-        columns = width // 4
-    if rows > height // 4:
-        rows = height // 4
+    # if columns > width // 4:
+    #     columns = width // 4
+    # if rows > height // 4:
+    #     rows = height // 4
 
+    # width = (width // columns) * columns
+    # height = (height // rows) * rows
 
-    width = (width // columns) * columns
-    height = (height // rows) * rows
+    np.random.seed(seed)
 
-    # print(f'WIDTH: {width}')
-    # print(f'HEIGHT: {height}')
+    def calculate_distances(pixel_coordinates, cell_points):
+        return np.linalg.norm(pixel_coordinates[:, None, :] - cell_points, axis=2)
 
-    def gen_grad_color(x, y):
-        return (x*(width//columns//2),0,y*(height//rows//2))
+    def generate_voronoi(width, height, num_cells, border_size=1):
+        # Generate random cell points
+        cell_points = np.random.rand(num_cells, 2) * np.array([width, height])
 
-    random.seed(seed)
+        # Create a grid of pixels
+        x, y = np.meshgrid(np.arange(width), np.arange(height))
+        pixel_coordinates = np.column_stack((x.ravel(), y.ravel()))
 
-    colors = [gen_rand_color() for y in range(rows) for x in range(columns)]
-    # colors = [gen_grad_color(x, y) for y in range(rows) for x in range(columns)]
+        # Split pixel coordinates into chunks for parallel processing
+        chunk_size = height // 4
+        pixel_chunks = [pixel_coordinates[i:i+chunk_size, :] for i in range(0, height*width, chunk_size)]
 
-    centerCoordinates = []
+        # Calculate distance from each pixel to each cell point using ThreadPoolExecutor
+        with ThreadPoolExecutor() as executor:
+            distances_chunks = list(executor.map(calculate_distances, pixel_chunks, [cell_points]*len(pixel_chunks)))
 
-    for y in range(height):
-        for x in range(width):
-            dw = width // columns
-            dh = height // rows
+        distances = np.concatenate(distances_chunks, axis=0)
 
-            # center dots
-            if (x + dw // 2) % dw == 0 and (y + dh // 2) % dh == 0:
-                centerCoord = rand_offset_coord(np.array([x, y]))
-                # centerCoord = np.array([x, y])
-                centerCoordinates.append(centerCoord)
+        # Assign each pixel to the closest cell
+        voronoi_labels = np.argmin(distances, axis=1)
 
-    def voronoi(x, y):
-        _y = y // (height // rows)
-        _x = x // (width // columns)
-        i = _y * columns + _x
+        # Create an image with different colors for each cell
+        voronoi_image = np.zeros((height * width, 3), dtype=np.uint8)
+        colors = np.random.randint(0, 256, (num_cells, 3), dtype=np.uint8)
 
+        voronoi_image[:, :] = colors[voronoi_labels]
 
-        pixelCoord = np.array([x, y])
-        surrounding_indexes = get_surrounding_indexes(i, columns, rows*columns);
-        # print(f"{i}: {surrounding_indexes}")
-        # print("asdf")
+        # Reshape the image array to match the height and width
+        voronoi_image = voronoi_image.reshape((height, width, 3))
 
-        shortestDist = sorted([(idx, np.linalg.norm(centerCoordinates[idx] - pixelCoord)) for idx in surrounding_indexes], key=lambda x: x[1])[0]
+        # Add black border to each cell
+        mask = voronoi_labels.reshape((height, width))
+        border_mask = (np.roll(mask, 1, axis=0) != mask) | (np.roll(mask, 1, axis=1) != mask)
+        voronoi_image[border_mask] = [0, 0, 0]
 
-        shortestDistIndex = shortestDist[0]
-        shortestDistValue = shortestDist[1]
+        return voronoi_image
 
-        coord_col = (255, 255, 255)
-        grid_col = (127, 127, 127)
+    num_cells = 50
 
-        if debug:
-            dw = width // columns
-            dh = height // rows
+    voronoi_pattern = generate_voronoi(width, height, num_cells)
 
-            if shortestDistValue < 1:
-                col = coord_col
-            elif x % dw == 0 or y % dh == 0: # grid
-                col = grid_col
-            else:
-                col = colors[shortestDistIndex]
-        else:
-            col = colors[shortestDistIndex]
-
-
-        return col
-
-    pix = [voronoi(x, y) for y in range(height) for x in range(width)]
-
-    img = Image.new('RGB', (width, height))
-    img.putdata(pix)
-
+    image = Image.fromarray(voronoi_pattern)
     data = io.BytesIO()
-
-    #First save image as in-memory.
-    # img.save(data, "JPEG")
-    img.save(data, "PNG")
+    image.save(data, "PNG")
 
     #Then encode the saved image file.
     encoded_img_data = base64.b64encode(data.getvalue())
     # print(f"Debug Mode: {debug}")
-    return render_template("index.html", img_data=encoded_img_data.decode('utf-8'), rows=rows, columns=columns, width=width, height=height, debug=debug, seed=str(seed))
+    # return render_template("index.html", img_data=encoded_img_data.decode('utf-8'), rows=rows, columns=columns, width=width, height=height, debug=debug, seed=str(seed))
+    return render_template("index.html", img_data=encoded_img_data.decode('utf-8'), width=width, height=height, seed=str(seed))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
