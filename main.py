@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for
 import base64
 import io
-import random
 import numpy as np
-import numpy.typing as npt
+from concurrent.futures import ThreadPoolExecutor
+from scipy.spatial.distance import cdist
+
 # from functools import reduce
 
 from PIL import Image, ImageDraw
@@ -26,15 +27,11 @@ app = Flask(__name__)
 
 @app.route('/')
 def test():
-    # return redirect(url_for("generate", rows=4, columns=4, width=128, height=128, seed=1, debug=True))
     return redirect(url_for("generate", width=128, height=128, seed=1))
 
 @app.route('/gen/', methods=["POST","GET"])
 def generate():
-    # rows = int(request.args.get('rows'))
-    # columns = int(request.args.get('columns'))
     seed = int(request.args.get('seed'))
-    # debug = request.args.get('debug') == 'on'
 
     width = int(request.args.get('width'))
     height = int(request.args.get('height'))
@@ -45,18 +42,11 @@ def generate():
     if height > max_resolution:
         height = max_resolution
 
-    # if columns > width // 4:
-    #     columns = width // 4
-    # if rows > height // 4:
-    #     rows = height // 4
-
-    # width = (width // columns) * columns
-    # height = (height // rows) * rows
-
     np.random.seed(seed)
 
-    def calculate_distances(pixel_coordinates, cell_points):
-        return np.linalg.norm(pixel_coordinates[:, None, :] - cell_points, axis=2)
+    def calculate_distances(args):
+        pixel_chunk, cell_points = args
+        return cdist(pixel_chunk, cell_points)
 
     def generate_voronoi(width, height, num_cells, border_size=1):
         # Generate random cell points
@@ -68,11 +58,11 @@ def generate():
 
         # Split pixel coordinates into chunks for parallel processing
         chunk_size = height // 4
-        pixel_chunks = [pixel_coordinates[i:i+chunk_size, :] for i in range(0, height*width, chunk_size)]
+        pixel_chunks = [(pixel_coordinates[i:i+chunk_size, :], cell_points) for i in range(0, height*width, chunk_size)]
 
         # Calculate distance from each pixel to each cell point using ThreadPoolExecutor
         with ThreadPoolExecutor() as executor:
-            distances_chunks = list(executor.map(calculate_distances, pixel_chunks, [cell_points]*len(pixel_chunks)))
+            distances_chunks = list(executor.map(calculate_distances, pixel_chunks))
 
         distances = np.concatenate(distances_chunks, axis=0)
 
@@ -105,8 +95,7 @@ def generate():
 
     #Then encode the saved image file.
     encoded_img_data = base64.b64encode(data.getvalue())
-    # print(f"Debug Mode: {debug}")
-    # return render_template("index.html", img_data=encoded_img_data.decode('utf-8'), rows=rows, columns=columns, width=width, height=height, debug=debug, seed=str(seed))
+
     return render_template("index.html", img_data=encoded_img_data.decode('utf-8'), width=width, height=height, seed=str(seed))
 
 if __name__ == '__main__':
